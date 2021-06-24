@@ -118,8 +118,9 @@ function startRun(event){
 }
 
 function stoptRun(event){
-   //if(keys.hasOwnProherty(event.key)){
+   
     event.preventDefault()
+    //if(keys.hasOwnProherty(event.key)){
     keys[event.key] = false
    //}
 }
@@ -148,8 +149,8 @@ function muveEnemy (){
                 setting.start = false
                 console.warn('ДТП')
                 start.classList.remove('hide');
-                start.style.top = score.offsetHeight;
-                
+                start.style.top = score.offsetHeight + 'px';
+
                 //score.style.top = start.offsetHeight
                 musik.pause()
         }
