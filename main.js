@@ -24,12 +24,29 @@ const setting = {
     traffic: 3,
 }
 
+const MAX_ENEMY = 7
+
+//const music = document.createElement('embed');
+//musik.src = './audio.mp3'
+//music.classList.add('visually-hidden')
+const musik = new Audio('audio.mp3')
+
 function getQuantityElements (heightElement){
   return  document.documentElement.clientHeight/heightElement + 1
 }
 
+const getRandomEnemy =(max)=> Math.floor((Math.random() * max) + 1)
+
 function startGame (){
+    // document.body.append(music);
+    // setTimeout(()=>{
+    //     music.remove()
+    // }, 3000)
+    musik.play()
+    gameArea.style.minHeight = 100 + 'vh'
     start.classList.add('hide');
+    gameArea.innerHTML = '';
+   
 
 for(let i = 0; i < getQuantityElements(100); i++){
     const line = document.createElement('div');
@@ -45,12 +62,20 @@ for (let i = 0; i< getQuantityElements(100*setting.traffic); i++){
     enemy.y = -100 * setting.traffic * (i + 1);
     enemy.style.left = Math.floor(Math.random() * (gameArea.offsetWidth - 50)) + 'px'
     enemy.style.top = enemy.y + 'px';
-    enemy.style.background = 'transparent url(./image/enemy.png) center/ cover no-repeat';
+    enemy.style.background = `
+        transparent 
+        url(./image/enemy${getRandomEnemy(MAX_ENEMY)}.png)
+        center / cover
+        no-repeat`;
     gameArea.appendChild(enemy)
  }
 
+    setting.score = 0
     setting.start = true   
     gameArea.appendChild(car)
+    car.style.left = gameArea.offsetWidth/2 - car.offsetWidth/2;
+    car.style.top = 'auto'
+    car.style.bottom = '10px';
     setting.x = car.offsetLeft
     setting.y = car.offsetTop
     requestAnimationFrame(playGame)
@@ -58,9 +83,10 @@ for (let i = 0; i< getQuantityElements(100*setting.traffic); i++){
 
 function playGame (){
     if(setting.start){
+        setting.score+=setting.speed;
+        score.innerHTML = 'SCORE<br>' + setting.score;
 
         moveRoad();
-
         muveEnemy();
 
         if(keys.ArrowLeft && setting.x >0){
@@ -85,13 +111,17 @@ function playGame (){
 }
 
 function startRun(event){
-    event.preventDefault()
-    keys[event.key] = true
+    //if(keys.hasOwnProherty(event.key)){
+        event.preventDefault()
+        keys[event.key] = true
+    //}
 }
 
 function stoptRun(event){
+   //if(keys.hasOwnProherty(event.key)){
     event.preventDefault()
     keys[event.key] = false
+   //}
 }
 
 function moveRoad (){
@@ -109,13 +139,26 @@ function moveRoad (){
 function muveEnemy (){
     let enemy = document.querySelectorAll('.enemy');
     enemy.forEach(function(item){
+        let carRect = car.getBoundingClientRect();
+        let enemyRect = item.getBoundingClientRect()
+        if(carRect.top <= enemyRect.bottom && 
+            carRect.right >= enemyRect.left &&
+            carRect.left <= enemyRect.right &&
+            carRect.bottom>=enemyRect.top){
+                setting.start = false
+                console.warn('ДТП')
+                start.classList.remove('hide');
+                start.style.top = score.offsetHeight;
+                
+                //score.style.top = start.offsetHeight
+                musik.pause()
+        }
         item.y +=setting.speed / 2;
         item.style.top = item.y + 'px'
         if(item.y>=document.documentElement.clientHeight){
             item.y = -100 * setting.traffic;
             item.style.left = Math.floor(Math.random() * (gameArea.offsetWidth - 50)) + 'px'
         }
-    })
-
-   
+    })  
 }
+
